@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.*;
  * @author rico.putra
  * @version 2/10/18
  */
-@Controller
+@RestController
+@RequestMapping("/car")
 public class CarController {
 	@Autowired
 	private CarService carService;
