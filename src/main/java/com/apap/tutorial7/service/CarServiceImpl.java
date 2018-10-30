@@ -29,8 +29,9 @@ public class CarServiceImpl implements CarService {
  
  
  @Override
- public void addCar(CarModel car) {
+ public CarModel addCar(CarModel car) {
 	 carDb.save(car);
+	 return car;
  }
  
  @Override
@@ -50,5 +51,10 @@ public class CarServiceImpl implements CarService {
  @Override
  public void deleteCar(CarModel car) {
 	 carDb.delete(car);
+ }
+ 
+ @Override
+ public List<CarModel> getAllCar() {
+	 return carDb.findAll();
  }
 }

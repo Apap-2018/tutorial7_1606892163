@@ -13,11 +13,13 @@ import com.apap.tutorial7.model.CarModel;
 public interface CarService {
 	Optional<CarModel> getDetailCarById(Long id);
 	
-	void addCar(CarModel car);
+	CarModel addCar(CarModel car);
 	
 	void deleteCarById(Long id);
 	
 	void updateCar(Long carId, CarModel carNew);
 	
 	void deleteCar(CarModel car);
+	
+	List<CarModel> getAllCar();
 }

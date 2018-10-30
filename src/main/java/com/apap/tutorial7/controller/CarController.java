@@ -1,17 +1,28 @@
 package com.apap.tutorial7.controller;
 
-import com.apap.tutorial7.model.*;
-import com.apap.tutorial7.service.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.apap.tutorial7.model.CarModel;
+import com.apap.tutorial7.model.DealerModel;
+import com.apap.tutorial7.service.CarService;
+import com.apap.tutorial7.service.DealerService;
 
 /**
  * CarController
@@ -27,85 +38,44 @@ public class CarController {
 	@Autowired
 	private DealerService dealerService;
 	
-	@RequestMapping(value = "/car/add/{dealerId}")
-	private String add(@PathVariable(value = "dealerId") Long dealerId, Model model) {
-		DealerModel dealer = new DealerModel();
-		List<CarModel> listCar = new ArrayList<CarModel>();
-		listCar.add(new CarModel());
-		dealer.setListCar(listCar);
-		
-		model.addAttribute("listCar", listCar);
-		model.addAttribute("dealer", dealer);
-		model.addAttribute("dealerId", dealerId);
-		model.addAttribute("pageTitle", "Add Car");
-		
-		return "addCar";
+	@PostMapping(value = "/add")
+	private CarModel addCarSubmit(@RequestBody CarModel car) {
+		return carService.addCar(car);
+	}
+
+	@GetMapping(value = "{carId}")
+	private CarModel viewCar(@PathVariable("carId") long carId, Model model) {
+		return carService.getDetailCarById(carId).get();
 	}
 	
-	@RequestMapping(value = "/car/add/{dealerId}", method = RequestMethod.POST, params={"addRow"})
-	private String addRow(@PathVariable(value = "dealerId") Long dealerId, @ModelAttribute DealerModel dealer, Model model) {
-		CarModel car = new CarModel();
-		List<CarModel> listCar = null;
-		
-		if (dealer.getListCar() != null) {
-			listCar = dealer.getListCar();
-		}
-		else {
-			listCar = new ArrayList<CarModel>();
-		}
-		listCar.add(car);
-		dealer.setListCar(listCar);
-		model.addAttribute("listCar", listCar);
-		model.addAttribute("dealer", dealer);
-		model.addAttribute("dealerId", dealerId);
-		model.addAttribute("pageTitle", "Add Car");
-		
-		return "addCar";
+	@GetMapping()
+	private List<CarModel> viewAllCar(Model model) {
+		return carService.getAllCar();
 	}
 	
-	@RequestMapping(value = "/car/add/{dealerId}", method = RequestMethod.POST, params= {"removeRow"})
-	private String removeRow(@PathVariable(value = "dealerId") Long dealerId, @ModelAttribute DealerModel dealer, Model model, HttpServletRequest req) {
-		Integer rowId = Integer.valueOf(req.getParameter("removeRow"));
-		dealer.getListCar().remove(rowId.intValue());
-		
-		model.addAttribute("dealer", dealer);
-		model.addAttribute("dealerId", dealerId);
-		
-		return "addCar";
-	}
-	
-	@RequestMapping(value = "/car/add/{dealerId}", method = RequestMethod.POST, params= {"save"})
-	private String addCarSave(@PathVariable(value = "dealerId") Long dealerId, @ModelAttribute DealerModel dealer, Model model) {
-		DealerModel oldDealer = dealerService.getDealerDetailById(dealerId).get();
-		
-		for (CarModel car : dealer.getListCar()) {
-			car.setDealer(oldDealer);
-			carService.addCar(car);
-		}
-		model.addAttribute("pageTitle", "Add Car Succeed");
-		return "add";
-	}
-	
-	@RequestMapping(value = "/car/delete/{idCar}", method = RequestMethod.GET)
-	private String deleteCar(@PathVariable(value = "idCar") Long carId, Model model) {
+	@DeleteMapping(value = "{carId}")
+	private String deleteCar(@PathVariable("carId") long carId, Model model) {
 		carService.deleteCarById(carId);
-		model.addAttribute("pageTitle", "Delete Car Succeed");
-		return "delete";
+		return "car has been deleted";
 	}
 	
-	@RequestMapping(value = "/car/update/{idCar}", method = RequestMethod.GET)
-	private String updateCar(@PathVariable(value = "idCar") Long carId, Model model) {
-		CarModel carOld = carService.getDetailCarById(carId).get();
-		model.addAttribute("carOld", carOld);
-		model.addAttribute("carNew", new CarModel());
-		model.addAttribute("pageTitle", "Update Car");
-		return "updateCar";
-	}
-	
-	@RequestMapping(value = "/car/update/{idCar}", method = RequestMethod.POST)
-	private String updateCar(@ModelAttribute CarModel carNew, @PathVariable(value = "idCar") Long id, Model model) {
-		carService.updateCar(id, carNew);
-		model.addAttribute("pageTitle", "Update Car Succeed");
-		return "update";
+	@PutMapping(value = "{carId}")
+	private String updateCar(	@PathVariable("carId") long carId,
+								@RequestParam("brand") String brand,
+								@RequestParam("type") String type,
+								@RequestParam("price") Integer price,
+								@RequestParam("amount") Integer amount,
+								@RequestParam("dealerID") long dealerId,
+								Model model) {
+		CarModel car = (CarModel) carService.getDetailCarById(carId).get();
+		
+		car.setBrand(brand);
+		car.setType(type);
+		car.setPrice(price);
+		car.setAmount(amount);
+		car.setDealer(dealerService.getDealerDetailById(dealerId).get());
+		carService.updateCar(carId, car);
+		
+		return "car update success";
 	}
 }
