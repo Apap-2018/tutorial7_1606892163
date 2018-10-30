@@ -12,7 +12,7 @@ import com.apap.tutorial7.model.DealerModel;
 public interface DealerService {
 	Optional<DealerModel> getDealerDetailById(Long id);
 	
-	void addDealer(DealerModel dealer);
+	DealerModel addDealer(DealerModel dealer);
 	
 	List<DealerModel> getListDealer();
 	

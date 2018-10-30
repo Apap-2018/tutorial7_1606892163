@@ -27,8 +27,9 @@ public class DealerServiceImpl implements DealerService {
 	}
 	
 	@Override
-	public void addDealer(DealerModel dealer) {
+	public DealerModel addDealer(DealerModel dealer) {
 		dealerDb.save(dealer);
+		return dealer;
 	}
 	
 	@Override 
