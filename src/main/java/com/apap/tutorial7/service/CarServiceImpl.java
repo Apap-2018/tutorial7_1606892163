@@ -26,8 +26,6 @@ public class CarServiceImpl implements CarService {
 	 return carDb.findById(id);
  }
  
- 
- 
  @Override
  public CarModel addCar(CarModel car) {
 	 carDb.save(car);
